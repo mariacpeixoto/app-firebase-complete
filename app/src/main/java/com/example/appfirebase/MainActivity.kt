@@ -141,13 +141,11 @@ fun App(db : FirebaseFirestore) {
                 )
                 db.collection(
                     "Clientes"
-                ).document(
-                    "PrimeiroCliente"
-                ).set(pessoas).addOnSuccessListener {
+                ).add(pessoas)
+                .addOnSuccessListener { documentReference ->
                     Log.d(
                         ContentValues.TAG,
-                        "Document Snapshot successfully written!"
-                    )
+                        "Document Snapshot successfully written with ID: ${documentReference.id}")
                 }.addOnFailureListener { e ->
                     Log.w(
                         ContentValues.TAG,
