@@ -1,12 +1,12 @@
 package com.example.appfirebase
 
-import android.content.ContentValues
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
-import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,16 +34,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class MainActivity : ComponentActivity() {
-    val db = Firebase.firestore
+
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             AppFirebaseTheme {
-                Surface(
+                Surface (
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                    ) {
+                ) {
                     App(db)
                 }
             }
@@ -51,31 +53,31 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+@SuppressLint("UnrememberedMutableState")
 @Composable
-fun App(db : FirebaseFirestore) {
+fun App( db: FirebaseFirestore) {
     var nome by remember {
         mutableStateOf("")
     }
-
     var telefone by remember {
         mutableStateOf("")
     }
-
     Column(
-        Modifier.fillMaxWidth()
+        Modifier
+            .fillMaxWidth()
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-
         }
         Row(
             Modifier
-                .fillMaxWidth(), Arrangement.Center
+                .fillMaxWidth(),
+            Arrangement.Center
         ) {
-
             Text(text = "App Firebase Firestore")
         }
         Row(
@@ -83,7 +85,6 @@ fun App(db : FirebaseFirestore) {
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-
         }
         Row(
             Modifier
@@ -96,7 +97,6 @@ fun App(db : FirebaseFirestore) {
                 Text(text = "Nome:")
             }
             Column(
-
             ) {
                 TextField(
                     value = nome,
@@ -115,7 +115,6 @@ fun App(db : FirebaseFirestore) {
                 Text(text = "Telefone:")
             }
             Column(
-
             ) {
                 TextField(
                     value = telefone,
@@ -128,81 +127,78 @@ fun App(db : FirebaseFirestore) {
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-
         }
         Row(
             Modifier
-                .fillMaxWidth(), Arrangement.Center
+                .fillMaxWidth(),
+            Arrangement.Center
         ) {
             Button(onClick = {
                 val pessoas = hashMapOf(
                     "nome" to nome,
                     "telefone" to telefone
                 )
-                db.collection(
-                    "Clientes"
-                ).add(pessoas)
-                .addOnSuccessListener { documentReference ->
-                    Log.d(
-                        ContentValues.TAG,
-                        "Document Snapshot successfully written with ID: ${documentReference.id}")
-                }.addOnFailureListener { e ->
-                    Log.w(
-                        ContentValues.TAG,
-                        "Error writing document",
-                        e
-                    )
-                }
 
-            }) {
+                db.collection("Clientes").add(pessoas)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d(TAG, "DocumentSnapshot written with ID: ${documentReference.id}")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Error adding document", e)
+                    }
+            })
+            {
                 Text(text = "Cadastrar")
             }
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ){
 
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth(0.5f)
+            ) {
+                Text(text = "Nome:")
             }
+            Column(
+                Modifier
+                    .fillMaxWidth(0.5f)
+            ) {
+                Text(text = "Telefone:")
+            }
+        }
             Row(
                 Modifier
                     .fillMaxWidth()
-            ){
-                Column(
-                    Modifier
-                        .fillMaxWidth(0.5f)
-                ) {
-                    Text(text = "Nome:")
-                }
-                Column(
-                    Modifier
-                        .fillMaxWidth(0.5f)
-                ) {
-                    Text(text = "Telefone:")
-                }
-            }
-            Row(
-                Modifier
-                    .fillMaxWidth()
-            ){
+            ) {
                 Column(
 
                 ){
                     val clientes = mutableStateListOf<HashMap<String, String>>()
-                    db.collection("Clientes").get().addOnSuccessListener { documents ->
-                        for (document in documents) {
-                            val lista = hashMapOf(
-                                "nome" to "${document.data.get("nome")}",
-                                "telefone" to "${document.data.get("telefone")}"
-                            )
-                            clientes.add(lista)
-                            Log.d(TAG, "${document.id} => ${document.data}")
+                    db.collection("Clientes")
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                val lista = hashMapOf(
+                                    "nome" to "${document.data.get("nome")}",
+                                    "telefone" to "${document.data.get("telefone")}"
+                                )
+                                clientes.add(lista)
+                            }
                         }
-                    }
-                        .addOnFailureListener{ exception ->
+                        .addOnFailureListener { exception ->
                             Log.w(TAG, "Error getting documents: ", exception)
                         }
-                    LazyColumn (modifier = Modifier.fillMaxWidth()) {
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(clientes) { cliente ->
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Column(modifier = Modifier.weight(0.5f)) {
@@ -218,4 +214,4 @@ fun App(db : FirebaseFirestore) {
             }
         }
     }
-}
+
